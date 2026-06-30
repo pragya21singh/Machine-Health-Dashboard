@@ -1,4 +1,7 @@
 # Machine Health Monitoring Dashboard
+## Live Demo
+
+[Open the Machine Health Dashboard](https://zuaycz2u5vt9crg82xcavj.streamlit.app/)
 
 An interactive Python and Streamlit dashboard that compares multiple machines, identifies abnormal operating conditions, calculates risk scores, and ranks machines according to maintenance priority.
 
