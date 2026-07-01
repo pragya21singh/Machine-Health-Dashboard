@@ -3,9 +3,9 @@ import plotly.express as px
 import streamlit as st
 
 
-# --------------------------------------------------
+# ==================================================
 # PAGE SETTINGS
-# --------------------------------------------------
+# ==================================================
 
 st.set_page_config(
     page_title="Machine Health Dashboard",
@@ -26,9 +26,9 @@ st.caption(
 )
 
 
-# --------------------------------------------------
+# ==================================================
 # FILE UPLOAD
-# --------------------------------------------------
+# ==================================================
 
 uploaded_file = st.file_uploader(
     "Upload machine data",
@@ -38,27 +38,42 @@ uploaded_file = st.file_uploader(
 try:
     if uploaded_file is not None:
         machine_data = pd.read_csv(uploaded_file)
-        st.success("CSV file uploaded successfully.")
+
+        st.success(
+            "CSV file uploaded successfully."
+        )
+
     else:
-        machine_data = pd.read_csv("machine_data.csv")
-        st.info("Displaying the default sample machine data.")
+        machine_data = pd.read_csv(
+            "machine_data.csv"
+        )
+
+        st.info(
+            "Displaying the default sample machine data."
+        )
 
 except FileNotFoundError:
-    st.error("The default machine_data.csv file could not be found.")
+    st.error(
+        "The default machine_data.csv file could not be found."
+    )
     st.stop()
 
 except pd.errors.EmptyDataError:
-    st.error("The uploaded CSV file is empty.")
+    st.error(
+        "The uploaded CSV file is empty."
+    )
     st.stop()
 
 except pd.errors.ParserError:
-    st.error("The CSV file could not be read. Please check its format.")
+    st.error(
+        "The CSV file could not be read. Please check its format."
+    )
     st.stop()
 
 
-# --------------------------------------------------
-# COLUMN VALIDATION
-# --------------------------------------------------
+# ==================================================
+# REQUIRED COLUMN VALIDATION
+# ==================================================
 
 required_columns = [
     "machine_id",
@@ -83,9 +98,9 @@ if missing_columns:
     st.stop()
 
 
-# --------------------------------------------------
+# ==================================================
 # NUMERICAL DATA VALIDATION
-# --------------------------------------------------
+# ==================================================
 
 numeric_columns = [
     "temperature",
@@ -102,7 +117,9 @@ for column in numeric_columns:
     )
 
 invalid_rows = machine_data[
-    machine_data[numeric_columns].isnull().any(axis=1)
+    machine_data[numeric_columns]
+    .isnull()
+    .any(axis=1)
 ]
 
 if not invalid_rows.empty:
@@ -114,24 +131,31 @@ if not invalid_rows.empty:
 
     st.dataframe(
         invalid_rows,
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 
     st.stop()
 
-st.success("The machine data is valid.")
+st.success(
+    "The machine data is valid."
+)
 
 
-# --------------------------------------------------
+# ==================================================
 # SIDEBAR THRESHOLD SETTINGS
-# --------------------------------------------------
+# ==================================================
 
-st.sidebar.header("Risk Threshold Settings")
+st.sidebar.header(
+    "Risk Threshold Settings"
+)
 
 st.sidebar.caption(
     "Adjust the warning and critical limits used by the dashboard."
 )
+
+
+# Temperature thresholds
 
 temperature_warning = st.sidebar.number_input(
     "Temperature warning limit (°C)",
@@ -147,6 +171,9 @@ temperature_critical = st.sidebar.number_input(
     step=1.0
 )
 
+
+# Vibration thresholds
+
 vibration_warning = st.sidebar.number_input(
     "Vibration warning limit",
     min_value=0.0,
@@ -160,6 +187,9 @@ vibration_critical = st.sidebar.number_input(
     value=6.0,
     step=0.1
 )
+
+
+# RPM thresholds
 
 rpm_warning = st.sidebar.number_input(
     "RPM warning limit",
@@ -175,6 +205,9 @@ rpm_critical = st.sidebar.number_input(
     step=50
 )
 
+
+# Torque thresholds
+
 torque_warning = st.sidebar.number_input(
     "Torque warning limit",
     min_value=0.0,
@@ -188,6 +221,9 @@ torque_critical = st.sidebar.number_input(
     value=45.0,
     step=1.0
 )
+
+
+# Operating-hour thresholds
 
 hours_warning = st.sidebar.number_input(
     "Operating-hours warning limit",
@@ -204,9 +240,9 @@ hours_critical = st.sidebar.number_input(
 )
 
 
-# --------------------------------------------------
+# ==================================================
 # THRESHOLD VALIDATION
-# --------------------------------------------------
+# ==================================================
 
 invalid_thresholds = (
     temperature_warning >= temperature_critical
@@ -223,35 +259,56 @@ if invalid_thresholds:
     st.stop()
 
 
-# --------------------------------------------------
-# RISK-SCORE FUNCTIONS
-# --------------------------------------------------
+# ==================================================
+# RISK CALCULATION FUNCTIONS
+# ==================================================
 
 def calculate_risk_score(row):
+    """Calculate the total risk score for one machine."""
+
     score = 0
+
+    # Temperature risk
 
     if row["temperature"] > temperature_critical:
         score += 3
+
     elif row["temperature"] > temperature_warning:
         score += 1
 
+
+    # Vibration risk
+
     if row["vibration"] > vibration_critical:
         score += 3
+
     elif row["vibration"] > vibration_warning:
         score += 1
 
+
+    # RPM risk
+
     if row["rpm"] > rpm_critical:
         score += 3
+
     elif row["rpm"] > rpm_warning:
         score += 1
 
+
+    # Torque risk
+
     if row["torque"] > torque_critical:
         score += 3
+
     elif row["torque"] > torque_warning:
         score += 1
 
+
+    # Operating-hours risk
+
     if row["operating_hours"] > hours_critical:
         score += 3
+
     elif row["operating_hours"] > hours_warning:
         score += 1
 
@@ -259,61 +316,87 @@ def calculate_risk_score(row):
 
 
 def assign_health_status(score):
+    """Convert a risk score into a health category."""
+
     if score >= 8:
         return "Critical"
+
     elif score >= 4:
         return "Warning"
+
     else:
         return "Healthy"
 
 
 def identify_risk_factors(row):
+    """Explain why a machine received its risk score."""
+
     reasons = []
+
+    # Temperature explanation
 
     if row["temperature"] > temperature_critical:
         reasons.append(
             "Temperature exceeds the critical limit"
         )
+
     elif row["temperature"] > temperature_warning:
         reasons.append(
             "Temperature exceeds the warning limit"
         )
 
+
+    # Vibration explanation
+
     if row["vibration"] > vibration_critical:
         reasons.append(
             "Vibration exceeds the critical limit"
         )
+
     elif row["vibration"] > vibration_warning:
         reasons.append(
             "Vibration exceeds the warning limit"
         )
 
+
+    # RPM explanation
+
     if row["rpm"] > rpm_critical:
         reasons.append(
             "RPM exceeds the critical limit"
         )
+
     elif row["rpm"] > rpm_warning:
         reasons.append(
             "RPM exceeds the warning limit"
         )
 
+
+    # Torque explanation
+
     if row["torque"] > torque_critical:
         reasons.append(
             "Torque exceeds the critical limit"
         )
+
     elif row["torque"] > torque_warning:
         reasons.append(
             "Torque exceeds the warning limit"
         )
 
+
+    # Operating-hours explanation
+
     if row["operating_hours"] > hours_critical:
         reasons.append(
             "Operating hours exceed the critical maintenance limit"
         )
+
     elif row["operating_hours"] > hours_warning:
         reasons.append(
             "Operating hours exceed the warning maintenance limit"
         )
+
 
     if not reasons:
         reasons.append(
@@ -323,9 +406,9 @@ def identify_risk_factors(row):
     return reasons
 
 
-# --------------------------------------------------
+# ==================================================
 # CALCULATE MACHINE HEALTH
-# --------------------------------------------------
+# ==================================================
 
 machine_data["risk_score"] = machine_data.apply(
     calculate_risk_score,
@@ -334,20 +417,25 @@ machine_data["risk_score"] = machine_data.apply(
 
 machine_data["health_status"] = machine_data[
     "risk_score"
-].apply(assign_health_status)
+].apply(
+    assign_health_status
+)
 
 ranked_data = machine_data.sort_values(
     by="risk_score",
     ascending=False
-)
+).reset_index(drop=True)
 
 
-# --------------------------------------------------
-# SIDEBAR FILTER
-# --------------------------------------------------
+# ==================================================
+# SIDEBAR STATUS FILTER
+# ==================================================
 
 st.sidebar.divider()
-st.sidebar.subheader("Dashboard Filters")
+
+st.sidebar.subheader(
+    "Dashboard Filters"
+)
 
 selected_statuses = st.sidebar.multiselect(
     "Show machines with status",
@@ -370,21 +458,25 @@ if not selected_statuses:
     st.stop()
 
 filtered_data = ranked_data[
-    ranked_data["health_status"].isin(selected_statuses)
-]
+    ranked_data["health_status"].isin(
+        selected_statuses
+    )
+].copy()
 
 if filtered_data.empty:
     st.warning(
-        "No machines match the selected health-status filters."
+        "No machines match the selected health-status filter."
     )
     st.stop()
 
 
-# --------------------------------------------------
-# DASHBOARD SUMMARY
-# --------------------------------------------------
+# ==================================================
+# DASHBOARD SUMMARY CARDS
+# ==================================================
 
-total_machines = len(filtered_data)
+total_machines = len(
+    filtered_data
+)
 
 healthy_count = (
     filtered_data["health_status"] == "Healthy"
@@ -398,45 +490,50 @@ critical_count = (
     filtered_data["health_status"] == "Critical"
 ).sum()
 
-column1, column2, column3, column4 = st.columns(4)
 
-column1.metric(
+summary_column1, summary_column2, summary_column3, summary_column4 = (
+    st.columns(4)
+)
+
+summary_column1.metric(
     label="Total Machines",
     value=total_machines
 )
 
-column2.metric(
+summary_column2.metric(
     label="Healthy",
     value=int(healthy_count)
 )
 
-column3.metric(
+summary_column3.metric(
     label="Warning",
     value=int(warning_count)
 )
 
-column4.metric(
+summary_column4.metric(
     label="Critical",
     value=int(critical_count)
 )
 
 
-# --------------------------------------------------
+# ==================================================
 # MACHINE RISK TABLE
-# --------------------------------------------------
+# ==================================================
 
-st.subheader("Machine Risk Ranking")
+st.subheader(
+    "Machine Risk Ranking"
+)
 
 st.dataframe(
     filtered_data,
-    use_container_width=True,
+    width="stretch",
     hide_index=True
 )
 
 
-# --------------------------------------------------
-# DOWNLOADABLE CSV REPORT
-# --------------------------------------------------
+# ==================================================
+# DOWNLOADABLE MACHINE REPORT
+# ==================================================
 
 report_csv = filtered_data.to_csv(
     index=False
@@ -446,15 +543,20 @@ st.download_button(
     label="Download Filtered Machine Report",
     data=report_csv,
     file_name="machine_health_report.csv",
-    mime="text/csv"
+    mime="text/csv",
+    icon=":material/download:",
+    width="stretch",
+    on_click="ignore"
 )
 
 
-# --------------------------------------------------
-# RISK-SCORE CHART
-# --------------------------------------------------
+# ==================================================
+# MACHINE RISK-SCORE CHART
+# ==================================================
 
-st.subheader("Risk Score Comparison")
+st.subheader(
+    "Risk Score Comparison"
+)
 
 risk_chart = px.bar(
     filtered_data,
@@ -466,20 +568,111 @@ risk_chart = px.bar(
         "machine_id": "Machine",
         "risk_score": "Risk Score",
         "health_status": "Health Status"
+    },
+    hover_data={
+        "temperature": True,
+        "vibration": True,
+        "rpm": True,
+        "torque": True,
+        "operating_hours": True
     }
 )
 
 st.plotly_chart(
     risk_chart,
-    use_container_width=True
+    width="stretch"
 )
 
 
-# --------------------------------------------------
-# INDIVIDUAL MACHINE INSPECTION
-# --------------------------------------------------
+# ==================================================
+# SENSOR COMPARISON EXPLORER
+# ==================================================
 
-st.subheader("Inspect Individual Machine")
+st.subheader(
+    "Sensor Comparison Explorer"
+)
+
+sensor_options = {
+    "Temperature (°C)": "temperature",
+    "Vibration": "vibration",
+    "RPM": "rpm",
+    "Torque": "torque",
+    "Operating Hours": "operating_hours"
+}
+
+selected_sensor_label = st.selectbox(
+    "Choose a sensor parameter to compare",
+    options=list(sensor_options.keys())
+)
+
+selected_sensor_column = sensor_options[
+    selected_sensor_label
+]
+
+sensor_data = filtered_data.sort_values(
+    by=selected_sensor_column,
+    ascending=False
+).copy()
+
+sensor_average = sensor_data[
+    selected_sensor_column
+].mean()
+
+highest_sensor_index = sensor_data[
+    selected_sensor_column
+].idxmax()
+
+highest_sensor_row = sensor_data.loc[
+    highest_sensor_index
+]
+
+
+sensor_summary1, sensor_summary2 = st.columns(2)
+
+sensor_summary1.metric(
+    label=f"Average {selected_sensor_label}",
+    value=round(sensor_average, 2)
+)
+
+sensor_summary2.metric(
+    label="Highest Reading",
+    value=(
+        f"{highest_sensor_row['machine_id']} — "
+        f"{round(highest_sensor_row[selected_sensor_column], 2)}"
+    )
+)
+
+
+sensor_chart = px.bar(
+    sensor_data,
+    x="machine_id",
+    y=selected_sensor_column,
+    color="health_status",
+    title=f"{selected_sensor_label} Comparison",
+    labels={
+        "machine_id": "Machine",
+        selected_sensor_column: selected_sensor_label,
+        "health_status": "Health Status"
+    },
+    hover_data={
+        "risk_score": True,
+        "health_status": True
+    }
+)
+
+st.plotly_chart(
+    sensor_chart,
+    width="stretch"
+)
+
+
+# ==================================================
+# INDIVIDUAL MACHINE INSPECTION
+# ==================================================
+
+st.subheader(
+    "Inspect Individual Machine"
+)
 
 selected_machine_id = st.selectbox(
     "Select a machine",
@@ -500,51 +693,57 @@ st.write(
 )
 
 
-# First row of machine details
+# First row of readings
 
 detail1, detail2, detail3 = st.columns(3)
 
 detail1.metric(
-    "Temperature",
-    f"{selected_machine['temperature']} °C"
+    label="Temperature",
+    value=f"{selected_machine['temperature']} °C"
 )
 
 detail2.metric(
-    "Vibration",
-    selected_machine["vibration"]
+    label="Vibration",
+    value=selected_machine["vibration"]
 )
 
 detail3.metric(
-    "RPM",
-    int(selected_machine["rpm"])
+    label="RPM",
+    value=int(selected_machine["rpm"])
 )
 
 
-# Second row of machine details
+# Second row of readings
 
 detail4, detail5, detail6 = st.columns(3)
 
 detail4.metric(
-    "Torque",
-    selected_machine["torque"]
+    label="Torque",
+    value=selected_machine["torque"]
 )
 
 detail5.metric(
-    "Operating Hours",
-    int(selected_machine["operating_hours"])
+    label="Operating Hours",
+    value=int(
+        selected_machine["operating_hours"]
+    )
 )
 
 detail6.metric(
-    "Risk Score",
-    int(selected_machine["risk_score"])
+    label="Risk Score",
+    value=int(
+        selected_machine["risk_score"]
+    )
 )
 
 
-# --------------------------------------------------
+# ==================================================
 # HEALTH ASSESSMENT
-# --------------------------------------------------
+# ==================================================
 
-st.markdown("#### Health Assessment")
+st.markdown(
+    "#### Health Assessment"
+)
 
 if selected_machine["health_status"] == "Critical":
     st.error(
@@ -562,7 +761,11 @@ else:
     )
 
 
-st.markdown("#### Detected Risk Factors")
+st.markdown(
+    "#### Detected Risk Factors"
+)
 
 for reason in risk_factors:
-    st.write(f"- {reason}")
+    st.write(
+        f"- {reason}"
+    )
