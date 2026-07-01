@@ -35,7 +35,6 @@ uploaded_file = st.file_uploader(
     type=["csv"]
 )
 
-
 try:
     if uploaded_file is not None:
         machine_data = pd.read_csv(uploaded_file)
@@ -205,7 +204,9 @@ hours_critical = st.sidebar.number_input(
 )
 
 
-# Check that warning values are below critical values
+# --------------------------------------------------
+# THRESHOLD VALIDATION
+# --------------------------------------------------
 
 invalid_thresholds = (
     temperature_warning >= temperature_critical
@@ -260,10 +261,8 @@ def calculate_risk_score(row):
 def assign_health_status(score):
     if score >= 8:
         return "Critical"
-
     elif score >= 4:
         return "Warning"
-
     else:
         return "Healthy"
 
@@ -348,7 +347,6 @@ ranked_data = machine_data.sort_values(
 # --------------------------------------------------
 
 st.sidebar.divider()
-
 st.sidebar.subheader("Dashboard Filters")
 
 selected_statuses = st.sidebar.multiselect(
@@ -374,6 +372,12 @@ if not selected_statuses:
 filtered_data = ranked_data[
     ranked_data["health_status"].isin(selected_statuses)
 ]
+
+if filtered_data.empty:
+    st.warning(
+        "No machines match the selected health-status filters."
+    )
+    st.stop()
 
 
 # --------------------------------------------------
@@ -427,6 +431,22 @@ st.dataframe(
     filtered_data,
     use_container_width=True,
     hide_index=True
+)
+
+
+# --------------------------------------------------
+# DOWNLOADABLE CSV REPORT
+# --------------------------------------------------
+
+report_csv = filtered_data.to_csv(
+    index=False
+).encode("utf-8")
+
+st.download_button(
+    label="Download Filtered Machine Report",
+    data=report_csv,
+    file_name="machine_health_report.csv",
+    mime="text/csv"
 )
 
 
