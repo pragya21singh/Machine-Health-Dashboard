@@ -315,6 +315,15 @@ def assign_health_status(score):
     else:
         return "Healthy"
 
+def assign_maintenance_action(score):
+    if score >= 8:
+        return "Immediate inspection required"
+
+    elif score >= 4:
+        return "Schedule maintenance soon"
+
+    else:
+        return "Continue routine monitoring"
 
 def identify_risk_factors(row):
     reasons = []
@@ -384,6 +393,10 @@ machine_data["risk_score"] = machine_data.apply(
 machine_data["health_status"] = machine_data[
     "risk_score"
 ].apply(assign_health_status)
+
+machine_data["maintenance_action"] = machine_data[
+    "risk_score"
+].apply(assign_maintenance_action)
 
 ranked_data = machine_data.sort_values(
     by="risk_score",
@@ -1031,6 +1044,12 @@ detail6.metric(
     int(selected_machine["risk_score"])
 )
 
+st.markdown("#### Recommended Maintenance Action")
+
+st.info(
+    selected_machine["maintenance_action"]
+)
+
 
 # --------------------------------------------------
 # HEALTH ASSESSMENT
@@ -1040,18 +1059,22 @@ st.markdown("#### Health Assessment")
 
 if selected_machine["health_status"] == "Critical":
     st.error(
-        "This machine requires immediate inspection."
+        "This machine requires immediate inspection and should be "
+        "prioritised before normal operation continues."
     )
 
 elif selected_machine["health_status"] == "Warning":
     st.warning(
-        "This machine should be monitored and inspected soon."
+        "This machine should be monitored closely and scheduled for "
+        "maintenance if abnormal readings continue."
     )
 
 else:
     st.success(
-        "This machine is operating within the selected normal range."
+        "This machine is operating within the selected normal range. "
+        "Continue routine monitoring."
     )
+
 
 st.markdown("#### Detected Risk Factors")
 
