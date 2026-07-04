@@ -21,11 +21,68 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("⚙️ Machine Health Monitoring Dashboard")
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 45%, #581c87 100%);
+        color: white;
+    }
 
-st.write(
-    "Upload machine sensor data, compare multiple machines, "
-    "identify abnormal operating conditions, and prioritise maintenance."
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 3rem;
+    }
+
+    h1, h2, h3 {
+        color: #f8fafc !important;
+        font-weight: 800 !important;
+    }
+
+    .main-title {
+        font-size: 2.7rem;
+        font-weight: 900;
+        background: linear-gradient(90deg, #93c5fd, #d8b4fe, #f0abfc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.2rem;
+    }
+
+    .subtitle {
+        font-size: 1.05rem;
+        color: #dbeafe;
+        margin-bottom: 1.5rem;
+    }
+
+    div[data-testid="stMetric"] {
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.20);
+        padding: 18px;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    div[data-testid="stDataFrame"] {
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #111827 0%, #312e81 100%);
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    '<div class="main-title">⚙️ Machine Health Monitoring Dashboard</div>',
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    '<div class="subtitle">AI-assisted industrial dashboard for machine risk ranking, historical trends, and anomaly detection.</div>',
+    unsafe_allow_html=True
 )
 
 st.caption(
