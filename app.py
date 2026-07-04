@@ -26,6 +26,35 @@ st.caption(
     "demonstration purposes only. They are not certified industrial limits."
 )
 
+with st.expander("About this project and how to use it"):
+    st.markdown(
+        """
+        This dashboard is a Python-based machine health monitoring tool built
+        using Streamlit, Pandas, Plotly, and Scikit-learn.
+
+        It helps users analyse machine sensor data by:
+        - Uploading machine readings through CSV files
+        - Validating data format and numerical values
+        - Ranking machines by maintenance risk
+        - Explaining why a machine is marked Healthy, Warning, or Critical
+        - Comparing sensor readings interactively
+        - Analysing historical sensor trends
+        - Detecting unusual historical readings using Isolation Forest
+
+        **How to use the dashboard:**
+
+        1. Use the sample CSV files or upload your own machine data.
+        2. Adjust risk thresholds from the sidebar if needed.
+        3. Filter machines by health status.
+        4. Inspect individual machines to understand their risk factors.
+        5. Use the historical section to observe sensor trends over time.
+        6. Use the anomaly detection section to identify unusual readings.
+
+        **Note:** This project is built for educational and portfolio purposes.
+        The results should not be treated as certified industrial maintenance advice.
+        """
+    )
+
 
 # --------------------------------------------------
 # FILE UPLOAD
