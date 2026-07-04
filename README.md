@@ -5,6 +5,12 @@
 
 An interactive Python and Streamlit dashboard that compares multiple machines, identifies abnormal operating conditions, calculates risk scores, and ranks machines according to maintenance priority.
 
+## Project Overview
+
+This project is an interactive machine health monitoring dashboard built using Python and Streamlit. It is designed to help compare multiple machines, identify abnormal operating conditions, analyse historical sensor trends, and detect unusual readings using basic machine learning.
+
+The project connects mechanical engineering context with software development, data analysis, and machine learning.
+
 ## Features
 
 * Upload machine data using a CSV file
@@ -19,6 +25,18 @@ An interactive Python and Streamlit dashboard that compares multiple machines, i
 * Analyse historical sensor trends over time
 * Detect unusual sensor readings using Isolation Forest anomaly detection
 * Visualise anomaly scores using an interactive scatter plot
+
+## Workflow
+
+1. The user uploads machine sensor data in CSV format.
+2. The dashboard validates the file structure and numerical readings.
+3. Each machine receives a rule-based risk score.
+4. Machines are classified as Healthy, Warning, or Critical.
+5. The user can adjust risk thresholds from the sidebar.
+6. The dashboard displays rankings, charts, and maintenance recommendations.
+7. Historical sensor data can be analysed over time.
+8. Isolation Forest is used to detect unusual historical readings.
+9. Reports can be downloaded as CSV files.
 
 ## Technologies Used
 
@@ -88,6 +106,28 @@ The total score is converted into one of three health categories:
 
 The risk thresholds used in this project are created for educational and demonstration purposes. They are not certified industrial safety or maintenance limits.
 The anomaly-detection model identifies statistical outliers in the demonstration dataset. It does not confirm actual mechanical failure and should not be treated as a replacement for professional inspection.
+
+## What I Learned
+
+Through this project, I learned how to:
+
+- Build an interactive web dashboard using Streamlit
+- Work with CSV data using Pandas
+- Validate uploaded data before processing
+- Create interactive charts using Plotly
+- Design a rule-based risk scoring system
+- Analyse historical sensor trends
+- Apply Isolation Forest for anomaly detection
+- Organise code using separate utility files
+- Deploy a Python application publicly
+- Document a software project for GitHub
+
+## Limitations
+
+- The sensor thresholds are demonstration values, not certified industrial safety limits.
+- The sample datasets are educational and not collected from real machines.
+- The anomaly detection model identifies statistical outliers, not confirmed mechanical failures.
+- The project does not currently include real-time sensor integration.
 
 ## Future Improvements
 
