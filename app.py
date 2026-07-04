@@ -574,14 +574,60 @@ st.plotly_chart(
 # HISTORICAL SENSOR TREND EXPLORER
 # --------------------------------------------------
 
+
 st.subheader("Historical Sensor Trends")
 
 st.write(
     "Inspect how a selected machine's sensor readings change over time."
 )
 
+st.markdown("#### Upload or try sample historical data")
+
+sample_history_csv = """timestamp,machine_id,temperature,vibration,rpm,torque,operating_hours
+2026-07-01 08:00,M001,66,1.8,1440,31,415
+2026-07-01 10:00,M001,67,1.9,1445,31,417
+2026-07-01 12:00,M001,68,2.0,1450,32,419
+2026-07-01 14:00,M001,69,2.1,1455,32,421
+2026-07-01 16:00,M001,70,2.2,1460,33,423
+2026-07-01 08:00,M002,84,4.3,1570,38,865
+2026-07-01 10:00,M002,86,4.6,1580,39,867
+2026-07-01 12:00,M002,88,5.0,1590,40,869
+2026-07-01 14:00,M002,90,5.4,1600,41,871
+2026-07-01 16:00,M002,92,5.8,1610,42,873
+2026-07-01 08:00,M004,94,5.8,1640,43,1095
+2026-07-01 10:00,M004,97,6.1,1660,44,1097
+2026-07-01 12:00,M004,100,6.5,1680,46,1099
+2026-07-01 14:00,M004,103,6.8,1690,47,1101
+2026-07-01 16:00,M004,106,7.2,1710,49,1103
+2026-07-01 08:00,M006,101,6.6,1690,47,1395
+2026-07-01 10:00,M006,105,7.0,1720,49,1397
+2026-07-01 12:00,M006,109,7.4,1750,50,1399
+2026-07-01 14:00,M006,113,7.8,1780,51,1401
+2026-07-01 16:00,M006,117,8.3,1810,53,1403
+"""
+
+st.download_button(
+    label="Download Sample Historical CSV",
+    data=sample_history_csv,
+    file_name="sample_machine_history.csv",
+    mime="text/csv"
+)
+
+uploaded_history_file = st.file_uploader(
+    "Upload historical machine data",
+    type=["csv"],
+    key="historical_data_uploader"
+)
+
 try:
-    history_data = pd.read_csv("machine_history.csv")
+    if uploaded_history_file is not None:
+        history_data = pd.read_csv(uploaded_history_file)
+        st.success("Historical CSV file uploaded successfully.")
+    else:
+        history_data = pd.read_csv("machine_history.csv")
+        st.info("Displaying the default sample historical data.")
+
+
 
 except FileNotFoundError:
     st.warning(
