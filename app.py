@@ -4,6 +4,13 @@ import streamlit as st
 
 from ml_utils import detect_anomalies
 
+from risk_utils import (
+    calculate_risk_score,
+    assign_health_status,
+    assign_maintenance_action,
+    identify_risk_factors
+)
+
 # --------------------------------------------------
 # PAGE SETTINGS
 # --------------------------------------------------
@@ -271,114 +278,20 @@ if invalid_thresholds:
     )
     st.stop()
 
-
-# --------------------------------------------------
-# RISK-SCORE FUNCTIONS
-# --------------------------------------------------
-
-def calculate_risk_score(row):
-    score = 0
-
-    if row["temperature"] > temperature_critical:
-        score += 3
-    elif row["temperature"] > temperature_warning:
-        score += 1
-
-    if row["vibration"] > vibration_critical:
-        score += 3
-    elif row["vibration"] > vibration_warning:
-        score += 1
-
-    if row["rpm"] > rpm_critical:
-        score += 3
-    elif row["rpm"] > rpm_warning:
-        score += 1
-
-    if row["torque"] > torque_critical:
-        score += 3
-    elif row["torque"] > torque_warning:
-        score += 1
-
-    if row["operating_hours"] > hours_critical:
-        score += 3
-    elif row["operating_hours"] > hours_warning:
-        score += 1
-
-    return score
+thresholds = {
+    "temperature_warning": temperature_warning,
+    "temperature_critical": temperature_critical,
+    "vibration_warning": vibration_warning,
+    "vibration_critical": vibration_critical,
+    "rpm_warning": rpm_warning,
+    "rpm_critical": rpm_critical,
+    "torque_warning": torque_warning,
+    "torque_critical": torque_critical,
+    "hours_warning": hours_warning,
+    "hours_critical": hours_critical
+}
 
 
-def assign_health_status(score):
-    if score >= 8:
-        return "Critical"
-    elif score >= 4:
-        return "Warning"
-    else:
-        return "Healthy"
-
-def assign_maintenance_action(score):
-    if score >= 8:
-        return "Immediate inspection required"
-
-    elif score >= 4:
-        return "Schedule maintenance soon"
-
-    else:
-        return "Continue routine monitoring"
-
-def identify_risk_factors(row):
-    reasons = []
-
-    if row["temperature"] > temperature_critical:
-        reasons.append(
-            "Temperature exceeds the critical limit"
-        )
-    elif row["temperature"] > temperature_warning:
-        reasons.append(
-            "Temperature exceeds the warning limit"
-        )
-
-    if row["vibration"] > vibration_critical:
-        reasons.append(
-            "Vibration exceeds the critical limit"
-        )
-    elif row["vibration"] > vibration_warning:
-        reasons.append(
-            "Vibration exceeds the warning limit"
-        )
-
-    if row["rpm"] > rpm_critical:
-        reasons.append(
-            "RPM exceeds the critical limit"
-        )
-    elif row["rpm"] > rpm_warning:
-        reasons.append(
-            "RPM exceeds the warning limit"
-        )
-
-    if row["torque"] > torque_critical:
-        reasons.append(
-            "Torque exceeds the critical limit"
-        )
-    elif row["torque"] > torque_warning:
-        reasons.append(
-            "Torque exceeds the warning limit"
-        )
-
-    if row["operating_hours"] > hours_critical:
-        reasons.append(
-            "Operating hours exceed the critical maintenance limit"
-        )
-    elif row["operating_hours"] > hours_warning:
-        reasons.append(
-            "Operating hours exceed the warning maintenance limit"
-        )
-
-    if not reasons:
-        reasons.append(
-            "All readings are within the selected operating limits"
-        )
-
-    return reasons
 
 
 # --------------------------------------------------
@@ -386,7 +299,7 @@ def identify_risk_factors(row):
 # --------------------------------------------------
 
 machine_data["risk_score"] = machine_data.apply(
-    calculate_risk_score,
+    lambda row: calculate_risk_score(row, thresholds),
     axis=1
 )
 
@@ -1010,7 +923,8 @@ selected_machine = filtered_data[
 ].iloc[0]
 
 risk_factors = identify_risk_factors(
-    selected_machine
+    selected_machine,
+    thresholds
 )
 
 st.write(
