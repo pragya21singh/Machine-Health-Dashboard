@@ -973,6 +973,19 @@ else:
                     width="stretch"
                 )
 
+                anomaly_report_csv = anomaly_results.to_csv(
+                    index=False
+                ).encode("utf-8")
+
+                st.download_button(
+                    label="Download Anomaly Detection Report",
+                    data=anomaly_report_csv,
+                    file_name="anomaly_detection_report.csv",
+                    mime="text/csv"
+                )
+
+
+
                 st.caption(
                     "This model detects statistical outliers in the demonstration "
                     "dataset. It does not confirm mechanical failure or replace "
