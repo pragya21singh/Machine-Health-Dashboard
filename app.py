@@ -31,10 +31,29 @@ st.caption(
 # FILE UPLOAD
 # --------------------------------------------------
 
+st.markdown("#### Upload or try sample data")
+
+sample_csv = """machine_id,temperature,vibration,rpm,torque,operating_hours
+M001,68,2.1,1450,32,420
+M002,91,5.8,1600,41,870
+M003,74,3.2,1520,35,610
+M004,105,7.1,1700,48,1100
+M005,62,1.7,1380,29,300
+M006,115,8.2,1800,52,1400
+"""
+
+st.download_button(
+    label="Download Sample CSV",
+    data=sample_csv,
+    file_name="sample_machine_data.csv",
+    mime="text/csv"
+)
+
 uploaded_file = st.file_uploader(
-    "Upload current machine data",
+    "Upload machine data",
     type=["csv"]
 )
+
 
 try:
     if uploaded_file is not None:
