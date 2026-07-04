@@ -16,6 +16,9 @@ An interactive Python and Streamlit dashboard that compares multiple machines, i
 * Compare machine risk scores using an interactive chart
 * Inspect individual machine readings
 * Explain the factors contributing to each machine’s health status
+* Analyse historical sensor trends over time
+* Detect unusual sensor readings using Isolation Forest anomaly detection
+* Visualise anomaly scores using an interactive scatter plot
 
 ## Technologies Used
 
@@ -23,6 +26,7 @@ An interactive Python and Streamlit dashboard that compares multiple machines, i
 * Streamlit
 * Pandas
 * Plotly
+* Scikit-learn
 
 ## Required CSV Format
 
@@ -83,6 +87,7 @@ The total score is converted into one of three health categories:
 ## Important Note
 
 The risk thresholds used in this project are created for educational and demonstration purposes. They are not certified industrial safety or maintenance limits.
+The anomaly-detection model identifies statistical outliers in the demonstration dataset. It does not confirm actual mechanical failure and should not be treated as a replacement for professional inspection.
 
 ## Future Improvements
 
